@@ -11,7 +11,11 @@ from commitcraft.config import DEFAULT_MAX_CONTEXT, DEFAULT_MODEL, DEFAULT_OLLAM
 from commitcraft.fallback_generator import generate_fallback_messages, is_job_application_change
 from commitcraft.git_reader import read_git_changes, validate_repo_path
 from commitcraft.ollama_client import OllamaClient
-from commitcraft.output_validator import is_valid_commit_output, is_weak_jobs_output
+from commitcraft.output_validator import (
+    is_relevant_commit_output,
+    is_valid_commit_output,
+    is_weak_jobs_output,
+)
 from commitcraft.prompt_builder import build_context, build_prompt, build_repair_prompt
 from commitcraft.terminal import error, progress, section
 
@@ -106,7 +110,7 @@ def generate_output_with_retry(
         error(f"Ollama generation failed: {exc}")
         return generate_fallback_messages(files)
 
-    if is_valid_commit_output(output) and not _should_use_jobs_fallback(output, files):
+    if _is_usable_output(output, files):
         return output
 
     try:
@@ -115,9 +119,17 @@ def generate_output_with_retry(
         logging.debug("Ollama repair failed: %s", exc)
         return generate_fallback_messages(files)
 
-    if is_valid_commit_output(repaired) and not _should_use_jobs_fallback(repaired, files):
+    if _is_usable_output(repaired, files):
         return repaired
     return generate_fallback_messages(files)
+
+
+def _is_usable_output(output: str, files: list[str]) -> bool:
+    return (
+        is_valid_commit_output(output)
+        and is_relevant_commit_output(output, files)
+        and not _should_use_jobs_fallback(output, files)
+    )
 
 
 def _should_use_jobs_fallback(output: str, files: list[str]) -> bool:

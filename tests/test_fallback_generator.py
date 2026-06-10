@@ -11,7 +11,7 @@ def test_fallback_jobs_scope() -> None:
 def test_fallback_docs() -> None:
     output = generate_fallback_messages(["README.md"])
 
-    assert "docs(docs): update documentation" in output
+    assert "docs: update documentation" in output
 
 
 def test_fallback_applied_jobs_exact_output() -> None:

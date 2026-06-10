@@ -28,7 +28,20 @@ SENSITIVE_NAMES = {
     "id_ed25519",
 }
 SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".mobileprovision", ".keystore", ".jks"}
-SKIP_FOLDERS = {".git", "node_modules", "build", "dist", ".next", ".venv", "venv", "Pods", ".dart_tool"}
+SKIP_FOLDERS = {
+    ".git",
+    "node_modules",
+    "build",
+    "dist",
+    ".next",
+    ".venv",
+    "venv",
+    "Pods",
+    ".dart_tool",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+}
 BINARY_SUFFIXES = {
     ".pdf",
     ".png",

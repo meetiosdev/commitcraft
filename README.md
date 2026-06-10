@@ -12,17 +12,17 @@ It never stages files. It never commits files. It never changes your repository.
 
 ```text
 FULL DETAILED:
-feat(jobs): add generated job application assets
+feat(api): add retry handling for failed requests
 
-* add resumes and cover letters for multiple company applications
-* store scraped job pages, job content, and metadata
-* organize applications by company, week, and job id
+* add retry logic for temporary network failures
+* surface clearer errors when requests keep failing
+* update tests for successful and failed retry flows
 
 MEDIUM:
-feat(jobs): add generated job files and scraped job data
+feat(api): add retry handling and clearer request errors
 
 ONE LINER:
-feat(jobs): add job application assets
+feat(api): add request retry handling
 ```
 
 ## Key Features
@@ -38,7 +38,7 @@ feat(jobs): add job application assets
 - Shows clean progress by default
 - Supports `--show-files`, `--show-context`, `--copy`, and custom models
 - Falls back to safe local messages when Ollama is unavailable
-- Special handling for job application repositories with `AppliedJobs` and `jobs_data`
+- Uses path-aware heuristics to avoid weak or misleading commit messages
 
 ## Safety Promise
 
@@ -81,7 +81,7 @@ It also never uses `shell=True`.
 ### 1. Open Project Folder
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 ```
 
 ### 2. Create Virtual Environment
@@ -169,7 +169,7 @@ ollama pull llama3.1:8b
 ### Best Simple Flow
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 source .venv/bin/activate
 commitcraft
 ```
@@ -177,7 +177,7 @@ commitcraft
 Then enter target repo path:
 
 ```text
-Enter repo path: /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+Enter repo path: /path/to/your/repo
 ```
 
 The tool shows progress:
@@ -195,7 +195,7 @@ Then it prints 3 commit messages.
 ### One-Line Command
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+commitcraft /path/to/your/repo
 ```
 
 ### Use Current Directory
@@ -203,7 +203,7 @@ commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job
 If you are already inside a Git repo:
 
 ```bash
-cd /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+cd /path/to/your/repo
 commitcraft
 ```
 
@@ -214,7 +214,7 @@ When asked for repo path, press Enter.
 ### Show Files Too
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --show-files
+commitcraft /path/to/your/repo --show-files
 ```
 
 ### Show Context Sent To Ollama
@@ -222,19 +222,19 @@ commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --show-files
 Use this only when debugging:
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --show-context
+commitcraft /path/to/your/repo --show-context
 ```
 
 ### Copy Output To Clipboard
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --copy
+commitcraft /path/to/your/repo --copy
 ```
 
 ### Use Another Model
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --model llama3.1:8b
+commitcraft /path/to/your/repo --model llama3.1:8b
 ```
 
 ### Increase Context Size
@@ -242,13 +242,13 @@ commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --model llama3.
 Default context size is `14000` characters.
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --max-context 24000
+commitcraft /path/to/your/repo --max-context 24000
 ```
 
 ### Debug Mode
 
 ```bash
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job --debug
+commitcraft /path/to/your/repo --debug
 ```
 
 ## CLI Reference
@@ -386,38 +386,28 @@ The tool detects:
 - Python
 - General fallback
 
-## Job Application Repo Behavior
+## Path-Aware Output
 
-If file paths include:
+CommitCraft uses file paths, folders, and diffs together. If model output is too generic or focuses on the wrong files, CommitCraft retries once and can fall back to a safer local message.
 
-```text
-AppliedJobs
-jobs_data
-resume
-coverletter
-job_details
-job_content
-full_page
-```
-
-The tool strongly prefers:
+Generic example:
 
 ```text
 FULL DETAILED:
-feat(jobs): add generated job application assets
+feat(api): add retry handling for failed requests
 
-* add resumes and cover letters for multiple company applications
-* store scraped job pages, job content, and metadata
-* organize applications by company, week, and job id
+* add retry logic for temporary network failures
+* surface clearer errors when requests keep failing
+* update tests for successful and failed retry flows
 
 MEDIUM:
-feat(jobs): add generated job files and scraped job data
+feat(api): add retry handling and clearer request errors
 
 ONE LINER:
-feat(jobs): add job application assets
+feat(api): add request retry handling
 ```
 
-This prevents weak messages like `refactor(docs): update LaTeX templates` when the real change is generated job application assets.
+This helps prevent weak messages like `chore: update files` when the real change is more specific.
 
 ## Troubleshooting
 
@@ -426,7 +416,7 @@ This prevents weak messages like `refactor(docs): update LaTeX templates` when t
 Activate the virtual environment:
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 source .venv/bin/activate
 ```
 
@@ -461,13 +451,13 @@ ollama pull qwen2.5-coder:7b
 Check path exists:
 
 ```bash
-ls /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+ls /path/to/your/repo
 ```
 
 Check repo is Git repo:
 
 ```bash
-cd /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+cd /path/to/your/repo
 git status
 ```
 
@@ -484,7 +474,7 @@ git status --short
 ### Install For Development
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -581,7 +571,7 @@ commitcraft/
 First time:
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -592,17 +582,17 @@ ollama pull qwen2.5-coder:7b
 Every day:
 
 ```bash
-cd /Users/swaraj/Desktop/auto_commit/commitcraft
+cd /path/to/commitcraft
 source .venv/bin/activate
-commitcraft /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+commitcraft /path/to/your/repo
 ```
 
 Copy one of the generated messages, then commit manually in your repo:
 
 ```bash
-cd /Users/swaraj/Desktop/Swaraj/Personal/automation_job
+cd /path/to/your/repo
 git add .
-git commit -m "feat(jobs): add generated job application assets"
+git commit -m "feat(api): add request retry handling"
 ```
 
 This final commit step is manual by design.

@@ -19,11 +19,17 @@ def should_skip_path(path: str) -> str:
     parts = set(p.parts)
     if parts & SKIP_FOLDERS:
         return "skipped folder"
+    if any(part.endswith(".egg-info") for part in p.parts):
+        return "generated package metadata"
     if lowered_name in SENSITIVE_NAMES or p.suffix.lower() in SENSITIVE_SUFFIXES:
         return "sensitive file"
     if p.suffix.lower() in BINARY_SUFFIXES:
         return "binary file"
     return ""
+
+
+def should_ignore_change_path(path: str) -> bool:
+    return should_skip_path(path) in {"skipped folder", "generated package metadata"}
 
 
 def read_untracked_context(repo_root: Path, files: list[str]) -> str:

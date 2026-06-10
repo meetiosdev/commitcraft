@@ -23,7 +23,7 @@ def generate_fallback_messages(files: list[str]) -> str:
     scoped = f"({scope})" if scope else ""
 
     if any(key in joined for key in ["readme", ".md", "docs"]):
-        base = f"docs{scoped}: update documentation"
+        base = "docs: update documentation"
     elif any(key in joined for key in ["test", "spec"]):
         base = f"test{scoped}: update tests"
     elif any(key in joined for key in ["package.json", "requirements.txt", "pyproject.toml", "gradle"]):

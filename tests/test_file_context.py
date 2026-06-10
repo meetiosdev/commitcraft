@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from commitcraft.file_context import filter_safe_diff, read_untracked_context, should_skip_path
+from commitcraft.file_context import (
+    filter_safe_diff,
+    read_untracked_context,
+    should_ignore_change_path,
+    should_skip_path,
+)
 
 
 def test_sensitive_file_skipped() -> None:
@@ -10,6 +15,11 @@ def test_sensitive_file_skipped() -> None:
 
 def test_binary_file_skipped() -> None:
     assert should_skip_path("resume.pdf") == "binary file"
+
+
+def test_generated_artifacts_ignored_as_changes() -> None:
+    assert should_ignore_change_path("src/commitcraft.egg-info/PKG-INFO")
+    assert should_ignore_change_path("src/commitcraft/__pycache__/cli.pyc")
 
 
 def test_read_untracked_text_content(tmp_path: Path) -> None:

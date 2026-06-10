@@ -5,6 +5,7 @@ from pathlib import Path
 
 from commitcraft.constants import ALLOWED_GIT_COMMANDS
 from commitcraft.exceptions import InvalidRepoPathError, NotGitRepoError, UnsafeGitCommandError
+from commitcraft.file_context import should_ignore_change_path
 from commitcraft.models import GitChangeSet
 
 
@@ -28,9 +29,9 @@ def read_git_changes(repo_path: str) -> GitChangeSet:
         repo_root=root,
         repo_name=root.name,
         status=_run_git(["git", "status", "--short"], root),
-        staged_files=_lines(_run_git(["git", "diff", "--cached", "--name-only"], root)),
-        unstaged_files=_lines(_run_git(["git", "diff", "--name-only"], root)),
-        untracked_files=_lines(_run_git(["git", "ls-files", "--others", "--exclude-standard"], root)),
+        staged_files=_filter_files(_lines(_run_git(["git", "diff", "--cached", "--name-only"], root))),
+        unstaged_files=_filter_files(_lines(_run_git(["git", "diff", "--name-only"], root))),
+        untracked_files=_filter_files(_lines(_run_git(["git", "ls-files", "--others", "--exclude-standard"], root))),
         staged_diff=_run_git(["git", "diff", "--cached"], root),
         unstaged_diff=_run_git(["git", "diff"], root),
     )
@@ -47,3 +48,7 @@ def _run_git(command: list[str], cwd: Path) -> str:
 
 def _lines(text: str) -> list[str]:
     return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def _filter_files(files: list[str]) -> list[str]:
+    return [file for file in files if not should_ignore_change_path(file)]
